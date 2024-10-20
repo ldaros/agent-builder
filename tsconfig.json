@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    "baseUrl": "./",                                     /* Specify the base directory to resolve non-relative module names. */
+    "paths": {                                           /* Specify a set of entries that re-map imports to additional lookup locations. */
+      "@/*": ["src/*"]                                   /* Redirect all imports to src */
+    },
+    "outDir": "dist",                                    /* Redirect output structure to the directory. */
+  },
+  "include": ["src/**/*"],                               /* Specify files to be included. */
+  "exclude": ["node_modules", "dist"],                   /* Specify files to exclude. */
+  "ts-node": {                                           /* Specify type-checking options as an extension. */
+    "require": ["tsconfig-paths/register"]               /* Specify a set of tsconfig paths to be registered with the "paths" option. */
+  }
+}
