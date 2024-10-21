@@ -46,3 +46,21 @@ export class InvalidCredentialsError extends BaseError {
         super(message, "InvalidCredentialsError");
     }
 }
+
+export class ParserError extends BaseError {
+    constructor(message: string) {
+        super(message, "ParserError");
+    }
+}
+
+export class ValidationError extends BaseError {
+    constructor(message: string) {
+        super(message, "ValidationError");
+    }
+}
+
+export class SchemaCompilationError extends BaseError {
+    constructor(message: string) {
+        super(message, "SchemaCompilationError");
+    }
+}

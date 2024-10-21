@@ -1,0 +1,5 @@
+{
+    "instructions": {
+        "jsonSchema": "!!Response must be a valid JSON object that matches the following schema: {{schema}}"
+    }
+}

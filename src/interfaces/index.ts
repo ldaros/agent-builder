@@ -7,6 +7,11 @@ export type Prompt = {
     messages: Message[];
 };
 
-export type Model = {
+export interface Model {
     generate(prompt: Prompt): Promise<Message>;
+};
+
+export interface Parser<T> {
+    parse(text: string): Promise<T>;
+    getInstructions?(): string;
 };

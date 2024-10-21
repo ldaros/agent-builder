@@ -19,10 +19,19 @@ export class OpenAIModel implements Model {
     private apiKey: string;
     private baseUrl = "https://api.openai.com/v1/chat/completions";
     private model: string;
+    private params: OpenAIModelParams;
 
     constructor(settings: OpenAIModelSettings) {
         this.apiKey = this.validateApiKey(settings.apiKey);
         this.model = settings.model || "gpt-4o-mini";
+
+        this.params = {
+            temperature: settings.params?.temperature || 0.7,
+            max_tokens: settings.params?.max_tokens || 1000,
+            top_p: settings.params?.top_p || 1,
+            frequency_penalty: settings.params?.frequency_penalty || 0,
+            presence_penalty: settings.params?.presence_penalty || 0,
+        };
     }
 
     private validateApiKey(apiKey: string): string {
@@ -38,18 +47,10 @@ export class OpenAIModel implements Model {
     }
 
     private async makeRequest(prompt: Prompt): Promise<AxiosResponse<OpenAIResponse>> {
-        const params: OpenAIModelParams = {
-            temperature: 0.7,
-            max_tokens: 1000,
-            top_p: 1,
-            frequency_penalty: 0,
-            presence_penalty: 0,
-        };
-
         const body: OpenAIRequestBody = {
             model: this.model,
             messages: prompt.messages.map(this.toOpenAIMessage),
-            ...params,
+            ...this.params,
         };
 
         try {
