@@ -3,12 +3,17 @@ export type Message = {
     content: string;
 };
 
+export type ExecutionParams = {
+    contextID?: string;
+    custom?: any;
+}
+
 export interface Model {
-    generate(prompt: Message[]): Promise<Message>;
+    generate(prompt: Message[], params?: ExecutionParams): Promise<Message>;
 }
 
 export interface Logger {
-    log(messages: Message[]): void;
+    log(messages: Message[], params?: ExecutionParams): void;
 }
 
 export interface Parser<T> {

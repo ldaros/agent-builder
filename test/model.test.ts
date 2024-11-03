@@ -18,7 +18,7 @@ describe.skip("OpenAI Model", () => {
                 role: "user",
                 content: "Hello world!",
             },
-        ]);
+        ], { contextID: "test" });
 
         expect(response.content).to.be.a("string");
     });

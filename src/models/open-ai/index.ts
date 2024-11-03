@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Model, Message, Logger } from "@/core/interfaces";
+import { Model, Message, Logger, ExecutionParams } from "@/core/interfaces";
 import {
     InternalError,
     APIConnectionError,
@@ -43,10 +43,10 @@ export class OpenAIModel implements Model {
         return apiKey;
     }
 
-    async generate(prompt: Message[]): Promise<Message> {
+    async generate(prompt: Message[], params?: ExecutionParams): Promise<Message> {
         const response = await this.makeRequest(prompt);
         const message = await this.handleResponse(response);
-        this.logger?.log([...prompt, message]);
+        this.logger?.log([...prompt, message], params);
         return message;
     }
 

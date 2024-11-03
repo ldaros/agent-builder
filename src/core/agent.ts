@@ -1,4 +1,4 @@
-import { Message, Model, Parser, Tool } from "@/core/interfaces";
+import { Message, Model, Parser, Tool, ExecutionParams } from "@/core/interfaces";
 import { PlainTextParser } from "@/parsers/plain-text-parser";
 import { ToolExecutor } from "./tool-executor";
 
@@ -16,15 +16,15 @@ export class Agent<T = string> {
         }
     }
 
-    async execute(prompt: Message[]): Promise<T> {
+    async execute(prompt: Message[], params?: ExecutionParams): Promise<T> {
         this.addSystemInstructions(prompt);
 
-        let response = await this.model.generate(prompt);
+        let response = await this.model.generate(prompt, params);
 
         const toolResponse = await this.handleToolExecution(response.content, prompt);
 
         if (toolResponse) {
-            response = await this.model.generate(prompt);
+            response = await this.model.generate(prompt, params);
         }
 
         return this.parser.parse(response.content);
