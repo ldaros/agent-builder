@@ -1,12 +1,12 @@
 import axios, { AxiosResponse } from "axios";
-import { Model, Message } from "@/interfaces";
+import { Model, Message, Logger } from "@/core/interfaces";
 import {
     InternalError,
     APIConnectionError,
     InvalidCredentialsError,
     MalformedResponseError,
     RateLimitError,
-} from "@/errors";
+} from "@/core/errors";
 import {
     OpenAIModelSettings,
     OpenAIModelParams,
@@ -20,10 +20,12 @@ export class OpenAIModel implements Model {
     private baseUrl = "https://api.openai.com/v1/chat/completions";
     private model: string;
     private params: OpenAIModelParams;
+    private logger?: Logger;
 
-    constructor(settings: OpenAIModelSettings) {
+    constructor(settings: OpenAIModelSettings, logger?: Logger) {
         this.apiKey = this.validateApiKey(settings.apiKey);
         this.model = settings.model || "gpt-4o-mini";
+        this.logger = logger;
 
         this.params = {
             temperature: settings.params?.temperature || 0.7,
@@ -43,7 +45,9 @@ export class OpenAIModel implements Model {
 
     async generate(prompt: Message[]): Promise<Message> {
         const response = await this.makeRequest(prompt);
-        return this.handleResponse(response);
+        const message = await this.handleResponse(response);
+        this.logger?.log([...prompt, message]);
+        return message;
     }
 
     private async makeRequest(prompt: Message[]): Promise<AxiosResponse<OpenAIResponse>> {
@@ -105,7 +109,9 @@ export class OpenAIModel implements Model {
             throw new MalformedResponseError("OpenAI API response message is empty");
         }
 
-        return this.toMessage(message);
+        const parsedMessage = this.toMessage(data.choices[0].message);
+        
+        return parsedMessage;
     }
 
     private toMessage(message: OpenAIMessage): Message {
@@ -120,6 +126,14 @@ export class OpenAIModel implements Model {
     }
 
     private toOpenAIMessage(message: Message): OpenAIMessage {
+        if (message.role === "tool") {
+            return {
+                role: "system",
+                name: "tool",
+                content: message.content,
+            };
+        }
+        
         return {
             role: message.role,
             content: message.content,

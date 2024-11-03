@@ -1,5 +1,5 @@
-import { Parser } from "@/interfaces";
-import { ParserError } from "@/errors";
+import { Parser } from "@/core/interfaces";
+import { ParserError } from "@/core/errors";
 
 export class PlainTextParser implements Parser<string> {
     async parse(text: string): Promise<string> {

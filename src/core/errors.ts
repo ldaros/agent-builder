@@ -64,3 +64,9 @@ export class SchemaCompilationError extends BaseError {
         super(message, "SchemaCompilationError");
     }
 }
+
+export class ToolNotFoundError extends BaseError {
+    constructor(message: string) {
+        super(message, "ToolNotFoundError");
+    }
+}

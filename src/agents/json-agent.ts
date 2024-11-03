@@ -1,5 +1,5 @@
 import i18n from "@/i18n";
-import { Model } from "@/interfaces";
+import { Model } from "@/core/interfaces";
 import { Agent } from "@/core/agent";
 import { JSONSchemaParser } from "@/parsers/json-schema-parser";
 

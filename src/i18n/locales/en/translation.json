@@ -2,5 +2,12 @@
     "instructions": {
         "jsonSchema": "!!Response must be a valid JSON object (RFC 8259) that matches the following schema: {{schema}}",
         "jsonAgent": "You are a helpful assistant. Your job is to convert unstructured text to JSON using the provided schema."
+    },
+    "tool": {
+        "intro": "You have the ability to use **tools** to assist you in completing your tasks.",
+        "usage": "To use a tool, provide the tool name and any required arguments in JSON (RFC 8259) format, ensuring validity against the tool's schema.",
+        "exampleUsage": "Example usage:\n```\n/tool tool_name\n/args {\"arg1\": \"value1\", \"arg2\": \"value2\"}\n```\n",
+        "definitionHeader": "# Available Tools\n",
+        "definition": "## {{name}}\n{{description}}\n\n### {{name}} Schema\n```json\n{{schema}}\n```"
     }
 }

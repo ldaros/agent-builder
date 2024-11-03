@@ -18,6 +18,7 @@ export type OpenAIRequestBody = {
 export type OpenAIMessage = {
     role: string;
     content: string;
+    name?: string;
 };
 
 export type OpenAIModelParams = {

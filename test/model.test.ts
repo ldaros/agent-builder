@@ -20,8 +20,6 @@ describe.skip("OpenAI Model", () => {
             },
         ]);
 
-        console.log(response);
-
         expect(response.content).to.be.a("string");
     });
 });

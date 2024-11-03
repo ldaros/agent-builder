@@ -1,8 +1,9 @@
-import Ajv, { ValidateFunction, ErrorObject } from "ajv";
+import Ajv, { ValidateFunction } from "ajv";
 import i18n from "@/i18n";
-import { Parser } from "@/interfaces";
-import { ParserError, ValidationError, SchemaCompilationError } from "@/errors";
+import { Parser } from "@/core/interfaces";
+import { ParserError, ValidationError, SchemaCompilationError } from "@/core/errors";
 import { cleanJSON } from "@/utils/clean-json";
+import { formatAJVErrors } from "@/utils/ajv";
 
 export class JSONSchemaParser<T> implements Parser<T> {
     private schema: any;
@@ -31,7 +32,7 @@ export class JSONSchemaParser<T> implements Parser<T> {
     async parse(text: string): Promise<T> {
         console.assert(text, "Text is an empty string");
         let parsedData: any;
-    
+
         text = cleanJSON(text);
         console.assert(text, "Text is empty after cleanup");
 
@@ -43,25 +44,11 @@ export class JSONSchemaParser<T> implements Parser<T> {
 
         const isValid = this.validator(parsedData);
         if (!isValid) {
-            const formattedErrors = this.formatAJVErrors(this.validator.errors, parsedData);
+            const formattedErrors = formatAJVErrors(this.validator.errors);
             throw new ValidationError(formattedErrors);
         }
 
         console.assert(parsedData, "Parsed data is undefined");
         return parsedData as T;
-    }
-
-    private formatAJVErrors(errors: ErrorObject[] | null | undefined, parsedData: any): string {
-        if (!errors) {
-            return "Unknown error";
-        }
-
-        return errors
-            .map((err) => {
-                const dataPath = err.instancePath || err.instancePath || "";
-                const message = err.message || "Validation error";
-                return `Error at ${dataPath}: ${message}`;
-            })
-            .join("\n");
     }
 }
