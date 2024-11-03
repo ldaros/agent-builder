@@ -5,7 +5,7 @@
 - Add pt-br translations
 - Implement function calling/tools
 - Improve parser error handling
-- Add csv parser
+- Add csv/xml parser
 - Add memory for agent
 - Package as a library
 - Document the project

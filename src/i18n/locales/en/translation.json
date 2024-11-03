@@ -1,5 +1,6 @@
 {
     "instructions": {
-        "jsonSchema": "!!Response must be a valid JSON object that matches the following schema: {{schema}}"
+        "jsonSchema": "!!Response must be a valid JSON object (RFC 8259) that matches the following schema: {{schema}}",
+        "jsonAgent": "You are a helpful assistant. Your job is to convert unstructured text to JSON using the provided schema."
     }
 }

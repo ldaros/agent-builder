@@ -13,14 +13,12 @@ describe.skip("OpenAI Model", () => {
             },
         });
 
-        const response = await model.generate({
-            messages: [
-                {
-                    role: "user",
-                    content: "Hello world!",
-                },
-            ],
-        });
+        const response = await model.generate([
+            {
+                role: "user",
+                content: "Hello world!",
+            },
+        ]);
 
         console.log(response);
 

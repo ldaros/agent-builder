@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha -r tsx test/**/*.test.ts",
+    "test": "mocha -r tsx test/**/*.test.ts --timeout 10000",
     "build": "tsc"
   },
   "keywords": [],

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Model, Message, Prompt } from "@/interfaces";
+import { Model, Message } from "@/interfaces";
 import {
     InternalError,
     APIConnectionError,
@@ -41,15 +41,15 @@ export class OpenAIModel implements Model {
         return apiKey;
     }
 
-    async generate(prompt: Prompt): Promise<Message> {
+    async generate(prompt: Message[]): Promise<Message> {
         const response = await this.makeRequest(prompt);
         return this.handleResponse(response);
     }
 
-    private async makeRequest(prompt: Prompt): Promise<AxiosResponse<OpenAIResponse>> {
+    private async makeRequest(prompt: Message[]): Promise<AxiosResponse<OpenAIResponse>> {
         const body: OpenAIRequestBody = {
             model: this.model,
-            messages: prompt.messages.map(this.toOpenAIMessage),
+            messages: prompt.map(this.toOpenAIMessage),
             ...this.params,
         };
 
@@ -90,7 +90,7 @@ export class OpenAIModel implements Model {
         throw new InternalError("An unexpected error occurred");
     }
 
-    private handleResponse(response: AxiosResponse<OpenAIResponse>): Message {
+    private handleResponse(response: AxiosResponse<OpenAIResponse>): Message {            
         if (response.status !== 200) {
             throw new InternalError("OpenAI API returned an error");
         }

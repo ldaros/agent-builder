@@ -17,15 +17,13 @@ describe("JSON Schema Parser", () => {
             },
         });
 
-        const prompt = {
-            messages: [
-                {
-                    role: "system" as const,
-                    content:
-                        "You are a helpful assistant. Your job is to generate random names and ages.",
-                },
-            ],
-        };
+        const prompt = [
+            {
+                role: "system" as const,
+                content:
+                    "You are a helpful assistant. Your job is to generate random names and ages.",
+            },
+        ];
 
         type Response = {
             name: string;
@@ -33,6 +31,7 @@ describe("JSON Schema Parser", () => {
         };
 
         const parser = new JSONSchemaParser<Response>({
+            $schema: "http://json-schema.org/draft-07/schema#",
             type: "object",
             properties: {
                 name: {
@@ -45,8 +44,7 @@ describe("JSON Schema Parser", () => {
             required: ["name", "age"],
         });
 
-        const response = await new Agent<Response>(prompt, model, parser).execute();
-        console.log(response);
+        const response = await new Agent<Response>(model, parser).execute(prompt);
 
         expect(response).to.be.an("object");
         expect(response).to.have.property("name");

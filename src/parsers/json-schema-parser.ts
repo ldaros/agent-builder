@@ -12,6 +12,7 @@ export class JSONSchemaParser<T> implements Parser<T> {
         const ajv = new Ajv();
 
         try {
+            console.assert(schema, "Schema is undefined");
             this.schema = schema;
             this.validator = ajv.compile(schema);
         } catch (error) {
@@ -20,13 +21,17 @@ export class JSONSchemaParser<T> implements Parser<T> {
     }
 
     getInstructions(): string {
-        return i18n.t("instructions.jsonSchema", { schema: JSON.stringify(this.schema) });
+        return i18n.t("instructions.jsonSchema", { schema: this.getSchema() });
+    }
+
+    getSchema(): string {
+        return JSON.stringify(this.schema);
     }
 
     async parse(text: string): Promise<T> {
         console.assert(text, "Text is an empty string");
         let parsedData: any;
-
+    
         text = cleanJSON(text);
         console.assert(text, "Text is empty after cleanup");
 
@@ -38,7 +43,7 @@ export class JSONSchemaParser<T> implements Parser<T> {
 
         const isValid = this.validator(parsedData);
         if (!isValid) {
-            const formattedErrors = this.formatAJVErrors(this.validator.errors);
+            const formattedErrors = this.formatAJVErrors(this.validator.errors, parsedData);
             throw new ValidationError(formattedErrors);
         }
 
@@ -46,7 +51,7 @@ export class JSONSchemaParser<T> implements Parser<T> {
         return parsedData as T;
     }
 
-    private formatAJVErrors(errors: ErrorObject[] | null | undefined): string {
+    private formatAJVErrors(errors: ErrorObject[] | null | undefined, parsedData: any): string {
         if (!errors) {
             return "Unknown error";
         }
