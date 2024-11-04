@@ -1,18 +1,18 @@
 import i18n from "@/i18n";
-import { Model } from "@/core/interfaces";
+import { AgentOutput, IModel } from "@/core/interfaces";
 import { Agent } from "@/core/agent";
 import { JSONSchemaParser } from "@/parsers/json-schema-parser";
 
-export class JSONConversionAgent<T> {
+export class JSONConversionAgent<T = any> {
     private agent: Agent<T>;
     private parser: JSONSchemaParser<T>;
 
-    constructor(model: Model, schema: any) {
+    constructor(model: IModel, schema: any) {
         this.parser = new JSONSchemaParser<T>(schema);
         this.agent = new Agent<T>(model, this.parser);
     }
 
-    async execute(content: string): Promise<T> {
+    async execute(content: string): Promise<AgentOutput<T>> {
         return await this.agent.execute([
             {
                 role: "system",

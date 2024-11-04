@@ -1,9 +1,5 @@
 - Add support for other models (claude, llama, gemni, etc.)
-- Refactor agent to stratgegy pattern
-- Add metadata to agent and model response
-- Make agent return both messages and parsed data
 - Add pt-br translations
-- Implement function calling/tools
 - Improve parser error handling
 - Add csv/xml parser
 - Add memory for agent

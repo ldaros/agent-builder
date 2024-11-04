@@ -16,7 +16,7 @@ describe("JSON Conversion Agent", () => {
             },
         });
 
-        type Response = {
+        type AgeType = {
             name: string;
             age: number;
         };
@@ -29,7 +29,7 @@ describe("JSON Conversion Agent", () => {
         5. Emily Carter, 30 \
         Let me know if you need more!`;
 
-        const jsonResponse = await new JSONConversionAgent<Response[]>(model, {
+        const response = await new JSONConversionAgent<AgeType[]>(model, {
             $schema: "http://json-schema.org/draft-07/schema#",
             type: "array",
             items: {
@@ -47,10 +47,11 @@ describe("JSON Conversion Agent", () => {
             },
         }).execute(text);
 
-        expect(jsonResponse).to.not.be.undefined;
-        expect(jsonResponse).to.be.an("array");
-        expect(jsonResponse).to.have.length(5);
-        expect(jsonResponse[0]).to.have.property("name");
-        expect(jsonResponse[0]).to.have.property("age");
+        expect(response.data).to.not.be.undefined;
+        expect(response.data).to.be.an("array");
+        expect(response.data).to.have.length(5);
+        expect(response.data[0]).to.be.an("object");
+        expect(response.data[0]).to.have.property("name");
+        expect(response.data[0]).to.have.property("age");
     });
 });

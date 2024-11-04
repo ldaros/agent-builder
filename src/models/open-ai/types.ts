@@ -35,7 +35,14 @@ export type OpenAIResponse = {
     created: number;
     model: string;
     choices: OpenAIChoice[];
+    usage: OpenAIUsage;
 };
+
+export type OpenAIUsage = {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+}
 
 export type OpenAIChoice = {
     index: number;

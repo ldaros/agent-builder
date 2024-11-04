@@ -19,7 +19,7 @@ describe("Tool Executor", () => {
                     max_tokens: 500,
                 },
             },
-            new ConsoleLogger()
+            // new ConsoleLogger()
         );
 
         const tools = [
@@ -56,9 +56,9 @@ describe("Tool Executor", () => {
                 role: "user",
                 content: "Please calculate 4 + 4 * 4 using the calculator tool",
             },
-        ]);
+        ], { contextID: "test" });
 
-        expect(response).to.be.a("string");
-        expect(response).to.include("20");
+        expect(response.data).to.be.a("string");
+        expect(response.data).to.include("20");
     });
 });

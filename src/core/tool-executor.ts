@@ -1,34 +1,35 @@
 import i18n from "@/i18n";
 import Ajv, { ValidateFunction } from "ajv";
-import { Tool } from "@/core/interfaces";
+import { ITool, ToolExecutorOutput } from "@/core/interfaces";
 import { SchemaCompilationError } from "@/core/errors";
 import { formatAJVErrors } from "@/utils/ajv";
 import { cleanJSON } from "@/utils/clean-json";
 
 export class ToolExecutor {
-    private tools: Map<string, Tool>;
+    private tools: Map<string, ITool>;
     private ajv: Ajv;
 
-    constructor(tools: Tool[]) {
+    constructor(tools: ITool[]) {
         this.tools = new Map(tools.map((tool) => [tool.name, tool]));
         this.ajv = new Ajv();
     }
 
-    async execute(response: string): Promise<string | null> {
-        const toolName = this.extractToolName(response);
-        if (!toolName) return null;
+    async execute(messageContent: string): Promise<ToolExecutorOutput | null> {
+        const toolName = this.extractToolName(messageContent);
+        if (!toolName) return null; // No tool found
 
         const tool = this.tools.get(toolName);
-        if (!tool) return `Error: Tool '${toolName}' not found`;
+        if (!tool) return { toolOutput: `Error: Tool '${toolName}' not found` };
 
-        const args = this.extractArgs(response);
+        const args = this.extractArgs(messageContent);
         const parsedArgs = this.parseArguments(args);
-        if (typeof parsedArgs === "string") return parsedArgs; // Error message
+        if (typeof parsedArgs === "string") return { toolName, toolOutput: parsedArgs };
 
         const isValid = this.validateArgs(tool, parsedArgs);
-        if (typeof isValid === "string") return isValid; // Validation error message
+        if (typeof isValid === "string") return { toolName, toolOutput: isValid };
 
-        return await this.executeTool(tool, parsedArgs);
+        const result = await this.executeTool(tool, parsedArgs);
+        return { toolName, toolOutput: result };
     }
 
     private extractToolName(text: string): string | null {
@@ -50,7 +51,7 @@ export class ToolExecutor {
         }
     }
 
-    private validateArgs(tool: Tool, args: any): string | null {
+    private validateArgs(tool: ITool, args: any): string | null {
         const validator = this.getValidator(tool.schema);
         if (!validator(args)) {
             const errors = formatAJVErrors(validator.errors);
@@ -67,7 +68,7 @@ export class ToolExecutor {
         }
     }
 
-    private async executeTool(tool: Tool, args: any): Promise<string> {
+    private async executeTool(tool: ITool, args: any): Promise<string> {
         try {
             const result = await tool.execute(args);
             return result.error ? `Error: ${result.error}` : result.output;

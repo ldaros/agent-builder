@@ -1,11 +1,12 @@
 import Ajv, { ValidateFunction } from "ajv";
 import i18n from "@/i18n";
-import { Parser } from "@/core/interfaces";
+import { IParser } from "@/core/interfaces";
 import { ParserError, ValidationError, SchemaCompilationError } from "@/core/errors";
 import { cleanJSON } from "@/utils/clean-json";
 import { formatAJVErrors } from "@/utils/ajv";
 
-export class JSONSchemaParser<T> implements Parser<T> {
+export class JSONSchemaParser<T> implements IParser<T> {
+    name = "json-schema";
     private schema: any;
     private validator: ValidateFunction;
 

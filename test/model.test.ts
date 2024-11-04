@@ -20,6 +20,6 @@ describe.skip("OpenAI Model", () => {
             },
         ], { contextID: "test" });
 
-        expect(response.content).to.be.a("string");
+        expect(response.generated.content).to.be.a("string");
     });
 });

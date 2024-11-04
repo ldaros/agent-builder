@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Model, Message, Logger, ExecutionParams } from "@/core/interfaces";
+import { IModel, Message, ILogger, ExecutionParams, ModelOutput } from "@/core/interfaces";
 import {
     InternalError,
     APIConnectionError,
@@ -13,16 +13,17 @@ import {
     OpenAIRequestBody,
     OpenAIMessage,
     OpenAIResponse,
+    OpenAIUsage,
 } from "./types";
 
-export class OpenAIModel implements Model {
+export class OpenAIModel implements IModel {
     private apiKey: string;
     private baseUrl = "https://api.openai.com/v1/chat/completions";
     private model: string;
     private params: OpenAIModelParams;
-    private logger?: Logger;
+    private logger?: ILogger;
 
-    constructor(settings: OpenAIModelSettings, logger?: Logger) {
+    constructor(settings: OpenAIModelSettings, logger?: ILogger) {
         this.apiKey = this.validateApiKey(settings.apiKey);
         this.model = settings.model || "gpt-4o-mini";
         this.logger = logger;
@@ -43,11 +44,22 @@ export class OpenAIModel implements Model {
         return apiKey;
     }
 
-    async generate(prompt: Message[], params?: ExecutionParams): Promise<Message> {
+    async generate(prompt: Message[], params?: ExecutionParams): Promise<ModelOutput> {
         const response = await this.makeRequest(prompt);
-        const message = await this.handleResponse(response);
+        const { message, usage } = await this.handleResponse(response);
+        
         this.logger?.log([...prompt, message], params);
-        return message;
+
+        return {
+            generated: message,
+            params: params,
+            modelMetadata: {
+                model: this.model,
+                inputTokens: usage.prompt_tokens,
+                outputTokens: usage.completion_tokens,
+                totalTokens: usage.total_tokens,
+            },
+        };
     }
 
     private async makeRequest(prompt: Message[]): Promise<AxiosResponse<OpenAIResponse>> {
@@ -94,7 +106,10 @@ export class OpenAIModel implements Model {
         throw new InternalError("An unexpected error occurred");
     }
 
-    private handleResponse(response: AxiosResponse<OpenAIResponse>): Message {            
+    private handleResponse(response: AxiosResponse<OpenAIResponse>): {
+        message: Message;
+        usage: OpenAIUsage;
+    } {
         if (response.status !== 200) {
             throw new InternalError("OpenAI API returned an error");
         }
@@ -110,8 +125,8 @@ export class OpenAIModel implements Model {
         }
 
         const parsedMessage = this.toMessage(data.choices[0].message);
-        
-        return parsedMessage;
+
+        return { message: parsedMessage, usage: data.usage };
     }
 
     private toMessage(message: OpenAIMessage): Message {
@@ -133,7 +148,7 @@ export class OpenAIModel implements Model {
                 content: message.content,
             };
         }
-        
+
         return {
             role: message.role,
             content: message.content,

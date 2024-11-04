@@ -25,12 +25,12 @@ describe("JSON Schema Parser", () => {
             },
         ];
 
-        type Response = {
+        type AgeType = {
             name: string;
             age: number;
         };
 
-        const parser = new JSONSchemaParser<Response>({
+        const parser = new JSONSchemaParser<AgeType>({
             $schema: "http://json-schema.org/draft-07/schema#",
             type: "object",
             properties: {
@@ -44,10 +44,10 @@ describe("JSON Schema Parser", () => {
             required: ["name", "age"],
         });
 
-        const response = await new Agent<Response>(model, parser).execute(prompt);
+        const response = await new Agent<AgeType>(model, parser).execute(prompt);
 
-        expect(response).to.be.an("object");
-        expect(response).to.have.property("name");
-        expect(response).to.have.property("age");
+        expect(response.data).to.be.an("object");
+        expect(response.data).to.have.property("name");
+        expect(response.data).to.have.property("age");
     });
 });
