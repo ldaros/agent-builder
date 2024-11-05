@@ -3,5 +3,4 @@
 - Improve parser error handling
 - Add csv/xml parser
 - Add memory for agent
-- Package as a library
 - Document the project
