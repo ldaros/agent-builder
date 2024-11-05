@@ -1,5 +1,5 @@
-import { IParser } from "@/core/interfaces";
-import { ParserError } from "@/core/errors";
+import { IParser } from "../core/interfaces";
+import { ParserError } from "../core/errors";
 
 export class PlainTextParser implements IParser<string> {
     name = "plain-text";

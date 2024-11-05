@@ -1,12 +1,12 @@
 import axios, { AxiosResponse } from "axios";
-import { IModel, Message, ILogger, ExecutionParams, ModelOutput } from "@/core/interfaces";
+import { IModel, Message, ILogger, ExecutionParams, ModelOutput } from "../../core/interfaces";
 import {
     InternalError,
     APIConnectionError,
     InvalidCredentialsError,
     MalformedResponseError,
     RateLimitError,
-} from "@/core/errors";
+} from "../../core/errors";
 import {
     OpenAIModelSettings,
     OpenAIModelParams,

@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
-import { OpenAIModel } from "@/models/open-ai";
-import { JSONSchemaParser } from "@/parsers/json-schema-parser";
-import { Agent } from "@/core/agent";
-import { InitI18n } from "@/i18n";
+import { OpenAIModel } from "../src/models/open-ai";
+import { JSONSchemaParser } from "../src/parsers/json-schema-parser";
+import { Agent } from "../src/core/agent";
+import { InitI18n } from "../src/i18n";
 
 describe("JSON Schema Parser", () => {
     dotenv.config();

@@ -1,5 +1,5 @@
-import { Message, IModel, IParser, ExecutionParams, AgentOutput } from "@/core/interfaces";
-import { PlainTextParser } from "@/parsers/plain-text-parser";
+import { Message, IModel, IParser, ExecutionParams, AgentOutput } from "../core/interfaces";
+import { PlainTextParser } from "../parsers/plain-text-parser";
 import { ToolExecutor } from "./tool-executor";
 
 export class Agent<T = any> {

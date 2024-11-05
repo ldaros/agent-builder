@@ -1,4 +1,4 @@
-import { Message, ILogger, ExecutionParams } from "@/core/interfaces";
+import { Message, ILogger, ExecutionParams } from "../core/interfaces";
 
 export class ConsoleLogger implements ILogger {
     private contexts: Map<string, number> = new Map();

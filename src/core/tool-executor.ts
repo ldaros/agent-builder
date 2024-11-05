@@ -1,9 +1,9 @@
-import i18n from "@/i18n";
+import i18n from "../i18n";
 import Ajv, { ValidateFunction } from "ajv";
-import { ITool, ToolExecutorOutput } from "@/core/interfaces";
-import { SchemaCompilationError } from "@/core/errors";
-import { formatAJVErrors } from "@/utils/ajv";
-import { cleanJSON } from "@/utils/clean-json";
+import { ITool, ToolExecutorOutput } from "../core/interfaces";
+import { SchemaCompilationError } from "../core/errors";
+import { formatAJVErrors } from "../utils/ajv";
+import { cleanJSON } from "../utils/clean-json";
 
 export class ToolExecutor {
     private tools: Map<string, ITool>;

@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
-import { OpenAIModel } from "@/models/open-ai";
+import { OpenAIModel } from "../src/models/open-ai";
 
 describe.skip("OpenAI Model", () => {
     dotenv.config();

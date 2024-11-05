@@ -1,7 +1,7 @@
-import i18n from "@/i18n";
-import { AgentOutput, IModel } from "@/core/interfaces";
-import { Agent } from "@/core/agent";
-import { JSONSchemaParser } from "@/parsers/json-schema-parser";
+import i18n from "../i18n";
+import { AgentOutput, IModel } from "../core/interfaces";
+import { Agent } from "../core/agent";
+import { JSONSchemaParser } from "../parsers/json-schema-parser";
 
 export class JSONConversionAgent<T = any> {
     private agent: Agent<T>;

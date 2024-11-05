@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { cleanJSON } from "@/utils/clean-json";
+import { cleanJSON } from "../src/utils/clean-json";
 
 describe("cleanJSON", () => {
     it("should remove markdown content", () => {

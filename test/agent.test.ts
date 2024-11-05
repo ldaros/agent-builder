@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
-import { OpenAIModel } from "@/models/open-ai";
-import { InitI18n } from "@/i18n";
-import { JSONConversionAgent } from "@/agents/json-agent";
+import { OpenAIModel } from "../src/models/open-ai";
+import { InitI18n } from "../src/i18n";
+import { JSONConversionAgent } from "../src/agents/json-agent";
 
 describe("JSON Conversion Agent", () => {
     dotenv.config();
