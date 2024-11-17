@@ -1,6 +1,6 @@
 {
     "name": "agent-builder",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Framework for building LLM-powered agents",
     "main": "dist/index.js",
     "files": [
