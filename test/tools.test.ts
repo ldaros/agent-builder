@@ -6,21 +6,14 @@ import { ConsoleLogger } from "../src/loggers/console-logger";
 import { ToolExecutor } from "../src/core/tool-executor";
 import { Agent } from "../src/core/agent";
 import { PlainTextParser } from "../src/parsers/plain-text-parser";
+import { getTestingModel } from "./testing-utils";
 
 describe("Tool Executor", () => {
     dotenv.config();
     InitI18n();
 
     it("should execute tools", async () => {
-        const model = new OpenAIModel(
-            {
-                apiKey: process.env.OPENAI_API_KEY as string,
-                params: {
-                    max_tokens: 500,
-                },
-            },
-            // new ConsoleLogger()
-        );
+        const model = getTestingModel(500);
 
         const tools = [
             {
@@ -51,12 +44,15 @@ describe("Tool Executor", () => {
 
         const agent = new Agent(model, parser, executor);
 
-        const response = await agent.execute([
-            {
-                role: "user",
-                content: "Please calculate 4 + 4 * 4 using the calculator tool",
-            },
-        ], { contextID: "test" });
+        const response = await agent.execute(
+            [
+                {
+                    role: "user",
+                    content: "Please calculate 4 + 4 * 4 using the calculator tool",
+                },
+            ],
+            { contextID: "test" }
+        );
 
         expect(response.data).to.be.a("string");
         expect(response.data).to.include("20");

@@ -4,24 +4,25 @@ import { OpenAIModel } from "../src/models/open-ai";
 import { JSONSchemaParser } from "../src/parsers/json-schema-parser";
 import { Agent } from "../src/core/agent";
 import { InitI18n } from "../src/i18n";
+import { GoogleAIModel } from "../src/models/google-ai";
+import { getTestingModel } from "./testing-utils";
 
 describe("JSON Schema Parser", () => {
     dotenv.config();
     InitI18n();
 
     it("should generate a parsed response", async () => {
-        const model = new OpenAIModel({
-            apiKey: process.env.OPENAI_API_KEY as string,
-            params: {
-                max_tokens: 200,
-            },
-        });
+        const model = getTestingModel(200);
 
         const prompt = [
             {
                 role: "system" as const,
                 content:
                     "You are a helpful assistant. Your job is to generate random names and ages.",
+            },
+            {
+                role: "user" as const,
+                content: "Generate a random name and age",
             },
         ];
 

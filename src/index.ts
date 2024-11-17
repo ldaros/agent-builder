@@ -19,6 +19,8 @@ import { ToolExecutor } from "./core/tool-executor";
 
 import { OpenAIModel } from "./models/open-ai";
 
+InitI18n();
+
 export {
     Agent,
     ToolExecutor,

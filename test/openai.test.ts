@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { expect } from "chai";
 import { OpenAIModel } from "../src/models/open-ai";
 
-describe.skip("OpenAI Model", () => {
+describe("OpenAI Model", () => {
     dotenv.config();
 
     it("should generate a response", async () => {

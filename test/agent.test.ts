@@ -3,18 +3,14 @@ import { expect } from "chai";
 import { OpenAIModel } from "../src/models/open-ai";
 import { InitI18n } from "../src/i18n";
 import { JSONConversionAgent } from "../src/agents/json-agent";
+import { getTestingModel } from "./testing-utils";
 
 describe("JSON Conversion Agent", () => {
     dotenv.config();
     InitI18n();
 
     it("should parse unstructured text to JSON", async () => {
-        const model = new OpenAIModel({
-            apiKey: process.env.OPENAI_API_KEY as string,
-            params: {
-                max_tokens: 500,
-            },
-        });
+        const model = getTestingModel(500);
 
         type AgeType = {
             name: string;
