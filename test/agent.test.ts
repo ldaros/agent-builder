@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
-import { OpenAIModel } from "../src/models/open-ai";
 import { InitI18n } from "../src/i18n";
 import { JSONConversionAgent } from "../src/agents/json-agent";
 import { getTestingModel } from "./testing-utils";

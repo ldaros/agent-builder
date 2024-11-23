@@ -12,8 +12,11 @@ export class ClientError extends BaseError {
 }
 
 export class InternalError extends BaseError {
-    constructor(message: string) {
+    constructor(message: string, originalError?: unknown) {
         super(message, "InternalError");
+        if (originalError instanceof Error) {
+            this.stack = originalError.stack;
+        }
     }
 }
 

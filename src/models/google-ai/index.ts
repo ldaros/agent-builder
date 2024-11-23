@@ -108,7 +108,7 @@ export class GoogleAIModel implements IModel {
 
     private handleRequestError(error: unknown): never {
         if (!axios.isAxiosError(error)) {
-            throw new InternalError("An unexpected error occurred");
+            throw new InternalError("An unexpected error occurred", error);
         }
 
         if (!error.response) {
@@ -126,7 +126,7 @@ export class GoogleAIModel implements IModel {
         }
 
         throw new InternalError(
-            `Google AI API returned an error: ${status} ${data?.error?.message}`
+            `Google AI API returned an error: ${status} ${data?.error?.message}`, error
         );
     }
 

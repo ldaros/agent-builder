@@ -87,7 +87,7 @@ export class OpenAIModel implements IModel {
 
     private handleRequestError(error: unknown): never {
         if (!axios.isAxiosError(error)) {
-            throw new InternalError("An unexpected error occurred");
+            throw new InternalError("An unexpected error occurred", error);
         }
 
         if (!error.response) {
@@ -103,7 +103,7 @@ export class OpenAIModel implements IModel {
             throw new RateLimitError("Rate limit exceeded");
         }
 
-        throw new InternalError("An unexpected error occurred");
+        throw new InternalError("An unexpected error occurred", error);
     }
 
     private handleResponse(response: AxiosResponse<OpenAIResponse>): {
@@ -111,7 +111,7 @@ export class OpenAIModel implements IModel {
         usage: OpenAIUsage;
     } {
         if (response.status !== 200) {
-            throw new InternalError("OpenAI API returned an error");
+            throw new InternalError("OpenAI API returned an error")
         }
 
         const data = response.data;

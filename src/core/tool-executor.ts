@@ -17,7 +17,7 @@ export class ToolExecutor {
     async execute(messageContent: string): Promise<ToolExecutorOutput | null> {
         const toolName = this.extractToolName(messageContent);
         if (!toolName) return null; // No tool found
-
+        
         const tool = this.tools.get(toolName);
         if (!tool) return { toolOutput: `Error: Tool '${toolName}' not found` };
 
@@ -33,12 +33,12 @@ export class ToolExecutor {
     }
 
     private extractToolName(text: string): string | null {
-        const match = text.match(/tool (\w+)/);
+        const match = text.match(/\/tool (\w+)/);
         return match ? match[1] : null;
     }
 
     private extractArgs(text: string): string {
-        const match = text.match(/args (.+)/);
+        const match = text.match(/\/args (.+)/);
         const args = match?.[1] ?? "";
         return cleanJSON(args);
     }

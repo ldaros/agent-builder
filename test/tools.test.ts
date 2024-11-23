@@ -1,8 +1,6 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
 import { InitI18n } from "../src/i18n";
-import { OpenAIModel } from "../src/models/open-ai";
-import { ConsoleLogger } from "../src/loggers/console-logger";
 import { ToolExecutor } from "../src/core/tool-executor";
 import { Agent } from "../src/core/agent";
 import { PlainTextParser } from "../src/parsers/plain-text-parser";
