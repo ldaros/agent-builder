@@ -17,8 +17,6 @@ import { InitI18n } from "./i18n";
 import { Agent } from "./core/agent";
 import { ToolExecutor } from "./core/tool-executor";
 
-import { OpenAIModel } from "./models/open-ai";
-
 InitI18n();
 
 export {
@@ -37,5 +35,4 @@ export {
     ModelMetadata,
     ToolExecutionResult,
     ToolExecutorOutput,
-    OpenAIModel,
 };

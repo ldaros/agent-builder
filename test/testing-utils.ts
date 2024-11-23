@@ -1,7 +1,5 @@
-import { OpenAIModel } from "../src/models/open-ai";
-import { GoogleAIModel } from "../src/models/google-ai";
-import { OpenRouterModel } from "../src/models/open-router";
-import { ConsoleLogger } from "../src/loggers/console-logger";
+import { OpenAIModel, GoogleAIModel, OpenRouterModel } from "../src/models";
+import { ConsoleLogger } from "../src/loggers";
 
 export function getTestingModel(maxTokens: number) {
     const modelName = process.env.TESTING_MODEL;

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { expect } from "chai";
 import { InitI18n } from "../src/i18n";
-import { JSONConversionAgent } from "../src/agents/json-agent";
+import { JSONConversionAgent } from "../src/agents";
 import { getTestingModel } from "./testing-utils";
 
 describe("JSON Conversion Agent", () => {

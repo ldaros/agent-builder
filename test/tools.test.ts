@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { InitI18n } from "../src/i18n";
 import { ToolExecutor } from "../src/core/tool-executor";
 import { Agent } from "../src/core/agent";
-import { PlainTextParser } from "../src/parsers/plain-text-parser";
+import { PlainTextParser } from "../src/parsers";
 import { getTestingModel } from "./testing-utils";
 
 describe("Tool Executor", () => {

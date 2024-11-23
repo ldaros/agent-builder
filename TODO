@@ -1,4 +1,3 @@
-- Add support for other models (claude, llama, gemni, etc.)
 - Improve parser error handling
 - Add csv/xml parser
 - Add memory for agent
