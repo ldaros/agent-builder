@@ -1,0 +1,13 @@
+{
+    "instructions": {
+        "jsonSchema": "!!A resposta deve ser um objeto JSON válido (RFC 8259) que corresponda ao seguinte esquema: {{schema}}",
+        "jsonAgent": "Você é um assistente útil. Sua tarefa é converter texto não estruturado em JSON usando o esquema fornecido."
+    },
+    "tool": {
+        "intro": "Você tem a capacidade de usar **ferramentas** para auxiliá-lo na conclusão de suas tarefas.",
+        "usage": "Para usar uma ferramenta, forneça o nome da ferramenta e quaisquer argumentos necessários no formato JSON (RFC 8259), garantindo validade de acordo com o esquema da ferramenta.",
+        "exampleUsage": "Exemplo de uso:\n```\n/tool nome_da_ferramenta\n/args {\"arg1\": \"valor1\", \"arg2\": \"valor2\"}\n```\n",
+        "definitionHeader": "# Ferramentas Disponíveis\n",
+        "definition": "## {{name}}\n{{description}}\n\n### Esquema de {{name}}\n```json\n{{schema}}\n```"
+    }
+}
