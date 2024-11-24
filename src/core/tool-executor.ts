@@ -5,15 +5,28 @@ import { SchemaCompilationError } from "../core/errors";
 import { formatAJVErrors } from "../utils/ajv";
 import { cleanJSON } from "../utils/clean-json";
 
+/**
+ * A class that manages and executes tools based on message content.
+ * Handles tool validation, argument parsing, and execution.
+ */
 export class ToolExecutor {
     private tools: Map<string, ITool>;
     private ajv: Ajv;
 
+    /**
+     * Creates a new ToolExecutor instance.
+     * @param tools - Array of tools to be managed by the executor
+     */
     constructor(tools: ITool[]) {
         this.tools = new Map(tools.map((tool) => [tool.name, tool]));
         this.ajv = new Ajv();
     }
 
+    /**
+     * Executes a tool based on the provided message content.
+     * @param messageContent - The message content containing tool command and arguments
+     * @returns Promise resolving to ToolExecutorOutput if a tool was executed, null otherwise
+     */
     async execute(messageContent: string): Promise<ToolExecutorOutput | null> {
         const toolName = this.extractToolName(messageContent);
         if (!toolName) return null; // No tool found
@@ -77,6 +90,10 @@ export class ToolExecutor {
         }
     }
 
+    /**
+     * Generates instructions for using available tools.
+     * @returns Formatted string containing tool usage instructions and definitions
+     */
     getInstructions(): string {
         if (this.tools.size === 0) return "";
 

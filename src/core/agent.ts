@@ -3,11 +3,21 @@ import { PlainTextParser } from "../parsers/plain-text-parser";
 import { Prompt } from "./prompt";
 import { ToolExecutor } from "./tool-executor";
 
+/**
+ * Agent class that orchestrates the interaction between a language model, parser, and optional tool executor.
+ * @template T The type of data that will be parsed from the model's output
+ */
 export class Agent<T = any> {
     private model: IModel;
     private parser: IParser<T>;
     private toolExecutor?: ToolExecutor;
 
+    /**
+     * Creates a new Agent instance.
+     * @param model - The language model to use for generating responses
+     * @param parser - The parser to process model outputs (defaults to PlainTextParser)
+     * @param executor - Optional tool executor for handling specific commands or actions
+     */
     constructor(
         model: IModel,
         parser: IParser<any> = new PlainTextParser(),
@@ -21,6 +31,12 @@ export class Agent<T = any> {
         }
     }
 
+    /**
+     * Executes the agent with given prompt and parameters.
+     * @param prompt - Either a Prompt instance or array of Messages to send to the model
+     * @param params - Optional execution parameters for the model
+     * @returns Promise resolving to AgentOutput containing the model's response and parsed data
+     */
     async execute(prompt: Prompt | Message[], params?: ExecutionParams): Promise<AgentOutput<T>> {
         if (prompt instanceof Prompt) {
             prompt = prompt.format();
