@@ -14,7 +14,6 @@ import {
     GoogleAIModelSettings,
     GemniGenerationConfig,
     Content,
-    UsageMetadata,
 } from "./types";
 
 export class GoogleAIModel implements IModel {
@@ -25,7 +24,11 @@ export class GoogleAIModel implements IModel {
     private logger?: ILogger;
 
     constructor(settings: GoogleAIModelSettings, logger?: ILogger) {
-        this.apiKey = this.validateApiKey(settings.apiKey);
+        if (!settings.apiKey) {
+            throw new InvalidCredentialsError("Google AI API key is required");
+        }
+
+        this.apiKey = settings.apiKey;
         this.baseUrl =
             settings.baseUrl || "https://generativelanguage.googleapis.com/v1beta/models";
         this.model = settings.model || "gemini-1.5-flash";
@@ -41,18 +44,50 @@ export class GoogleAIModel implements IModel {
         this.logger = logger;
     }
 
-    private validateApiKey(apiKey: string): string {
-        if (!apiKey) {
-            throw new InvalidCredentialsError("Google AI API key is required");
-        }
-        return apiKey;
-    }
-
     async generate(prompt: Message[], params?: ExecutionParams): Promise<ModelOutput> {
-        const response = await this.makeRequest(prompt);
+        const requestBody: GenerateContentRequest = {
+            contents: prompt
+                .map(this.mapMessageExternal)
+                .filter((content) => content?.role !== "system"),
+            generationConfig: this.generationConfig,
+        };
 
-        const { generatedContent, usage } = await this.handleResponse(response);
+        // Gemni api requires system instructions in a separate field, so we need to check for them
+        const systemInstruction = prompt.find((message) => message.role === "system");
+        if (systemInstruction) {
+            requestBody.system_instruction = {
+                parts: [{ text: systemInstruction.content }],
+            };
+        }
 
+        // Gemni gives an error if no prompt is provided, so we need to check for that
+        if (systemInstruction && requestBody.contents.length === 0) {
+            throw new ClientError("System instruction provided but no prompt provided");
+        }
+
+        const url = `${this.baseUrl}/${this.model}:generateContent?key=${this.apiKey}`;
+
+        let response: AxiosResponse<GenerateContentResponse>;
+        try {
+            response = await axios.post<GenerateContentResponse>(url, requestBody, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        } catch (error) {
+            this.handleRequestError(error);
+        }
+
+        if (response.status !== 200) {
+            throw new InternalError("Google AI API returned an error");
+        }
+
+        const data = response.data;
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new MalformedResponseError("Google AI API response is empty");
+        }
+
+        const generatedContent = data.candidates[0].content;
         const contents = generatedContent.parts.map((part) => part.text).join("");
 
         const responseMessage = {
@@ -67,43 +102,25 @@ export class GoogleAIModel implements IModel {
             params: params,
             modelMetadata: {
                 model: response.data.modelVersion,
-                inputTokens: usage.promptTokenCount,
-                outputTokens: usage.candidatesTokenCount,
-                totalTokens: usage.totalTokenCount,
+                inputTokens: data.usageMetadata.promptTokenCount,
+                outputTokens: data.usageMetadata.candidatesTokenCount,
+                totalTokens: data.usageMetadata.totalTokenCount,
             },
         };
     }
 
-    private async makeRequest(prompt: Message[]): Promise<AxiosResponse<GenerateContentResponse>> {
-        const requestBody: GenerateContentRequest = {
-            contents: prompt
-                .map(this.toGemniContent)
-                .filter((content) => content?.role !== "system"),
-            generationConfig: this.generationConfig,
+    private mapMessageExternal(message: Message): Content {
+        const roleMapping = {
+            user: "user",
+            tool: "user",
+            system: "system",
+            assistant: "model",
         };
 
-        const systemInstruction = prompt.find((message) => message.role === "system");
-        if (systemInstruction) {
-            requestBody.system_instruction = {
-                parts: [{ text: systemInstruction.content }],
-            };
-        }
-
-        if (systemInstruction && requestBody.contents.length === 0) {
-            throw new ClientError("System instruction provided but no prompt provided");
-        }
-
-        const url = `${this.baseUrl}/${this.model}:generateContent?key=${this.apiKey}`;
-
-        try {
-            return await axios.post<GenerateContentResponse>(url, requestBody, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-        } catch (error) {
-            this.handleRequestError(error);
-        }
+        return {
+            parts: [{ text: message.content }],
+            role: roleMapping[message.role],
+        };
     }
 
     private handleRequestError(error: unknown): never {
@@ -126,40 +143,8 @@ export class GoogleAIModel implements IModel {
         }
 
         throw new InternalError(
-            `Google AI API returned an error: ${status} ${data?.error?.message}`, error
+            `Google AI API returned an error: ${status} ${data?.error?.message}`,
+            error
         );
-    }
-
-    private handleResponse(response: AxiosResponse<GenerateContentResponse>): {
-        generatedContent: Content;
-        usage: UsageMetadata;
-    } {
-        if (response.status !== 200) {
-            throw new InternalError("Google AI API returned an error");
-        }
-
-        const data = response.data;
-
-        if (!data.candidates || data.candidates.length === 0) {
-            throw new MalformedResponseError("Google AI API response is empty");
-        }
-
-        const generatedContent = data.candidates[0].content;
-
-        return { generatedContent, usage: data.usageMetadata };
-    }
-
-    private toGemniContent(message: Message): Content {
-        const roleMapping = {
-            user: "user",
-            tool: "user",
-            system: "system",
-            assistant: "model",
-        };
-
-        return {
-            parts: [{ text: message.content }],
-            role: roleMapping[message.role],
-        };
     }
 }

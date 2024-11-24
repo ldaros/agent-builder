@@ -3,6 +3,9 @@ import { AgentOutput, IModel } from "../core/interfaces";
 import { Agent } from "../core/agent";
 import { JSONSchemaParser } from "../parsers/json-schema-parser";
 
+/**
+ * A simple agent that converts unstructured text to JSON.
+ */
 export class JSONConversionAgent<T = any> {
     private agent: Agent<T>;
     private parser: JSONSchemaParser<T>;

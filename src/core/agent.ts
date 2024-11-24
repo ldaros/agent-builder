@@ -21,11 +21,13 @@ export class Agent<T = any> {
     }
 
     async execute(prompt: Message[], params?: ExecutionParams): Promise<AgentOutput<T>> {
+        // Agent will add its own system instructions if needed
         this.addSystemInstructions(prompt);
 
         let modelOutput = await this.model.generate(prompt, params);
-        const toolOutput = await this.handleToolExecution(modelOutput.generated.content, prompt);
 
+        // If a tool was executed, we'll give the output to the model
+        const toolOutput = await this.handleToolExecution(modelOutput.generated.content, prompt);
         if (toolOutput) {
             modelOutput = await this.model.generate(prompt, params);
         }

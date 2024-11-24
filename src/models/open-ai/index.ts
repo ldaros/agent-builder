@@ -13,7 +13,6 @@ import {
     OpenAIRequestBody,
     OpenAIMessage,
     OpenAIResponse,
-    OpenAIUsage,
 } from "./types";
 
 export class OpenAIModel implements IModel {
@@ -24,7 +23,11 @@ export class OpenAIModel implements IModel {
     private logger?: ILogger;
 
     constructor(settings: OpenAIModelSettings, logger?: ILogger) {
-        this.apiKey = this.validateApiKey(settings.apiKey);
+        if (!settings.apiKey) {
+            throw new InvalidCredentialsError("OpenAI API key is required");
+        }
+
+        this.apiKey = settings.apiKey;
         this.model = settings.model || "gpt-4o-mini";
         this.logger = logger;
 
@@ -37,51 +40,73 @@ export class OpenAIModel implements IModel {
         };
     }
 
-    private validateApiKey(apiKey: string): string {
-        if (!apiKey) {
-            throw new InvalidCredentialsError("OpenAI API key is required");
-        }
-        return apiKey;
-    }
-
     async generate(prompt: Message[], params?: ExecutionParams): Promise<ModelOutput> {
-        const response = await this.makeRequest(prompt);
-        const { message, usage } = await this.handleResponse(response);
-        
-        this.logger?.log([...prompt, message], params);
-
-        return {
-            generated: message,
-            params: params,
-            modelMetadata: {
-                model: this.model,
-                inputTokens: usage.prompt_tokens,
-                outputTokens: usage.completion_tokens,
-                totalTokens: usage.total_tokens,
-            },
-        };
-    }
-
-    private async makeRequest(prompt: Message[]): Promise<AxiosResponse<OpenAIResponse>> {
-        const body: OpenAIRequestBody = {
+        const requestBody: OpenAIRequestBody = {
             model: this.model,
-            messages: prompt.map(this.toOpenAIMessage),
+            messages: prompt.map(this.mapMessageExternal),
             ...this.params,
         };
 
+        let response: AxiosResponse<OpenAIResponse>;
         try {
-            return await axios.post(this.baseUrl, body, {
-                headers: this.getHeaders(),
+            response = await axios.post(this.baseUrl, requestBody, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.apiKey}`,
+                },
             });
         } catch (error) {
             this.handleRequestError(error);
         }
+
+        if (response.status !== 200) {
+            throw new InternalError(
+                "OpenAI API returned an error",
+                new Error(JSON.stringify(response.data))
+            );
+        }
+
+        const data = response.data;
+        if (!data.choices || data.choices.length === 0) {
+            throw new MalformedResponseError("OpenAI API response is empty");
+        }
+
+        const openAIMessage = data.choices[0].message;
+        if (!openAIMessage) {
+            throw new MalformedResponseError("OpenAI API response message is empty");
+        }
+
+        const mappedMessage = {
+            role: openAIMessage.role as "user" | "assistant",
+            content: openAIMessage.content,
+        };
+
+        this.logger?.log([...prompt, mappedMessage], params);
+
+        return {
+            generated: mappedMessage,
+            params: params,
+            modelMetadata: {
+                model: this.model,
+                inputTokens: data.usage.prompt_tokens,
+                outputTokens: data.usage.completion_tokens,
+                totalTokens: data.usage.total_tokens,
+            },
+        };
     }
 
-    private getHeaders() {
+    private mapMessageExternal(message: Message): OpenAIMessage {
+        if (message.role === "tool") {
+            return {
+                role: "system",
+                name: "tool",
+                content: message.content,
+            };
+        }
+
         return {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
+            role: message.role,
+            content: message.content,
         };
     }
 
@@ -104,54 +129,5 @@ export class OpenAIModel implements IModel {
         }
 
         throw new InternalError("An unexpected error occurred", error);
-    }
-
-    private handleResponse(response: AxiosResponse<OpenAIResponse>): {
-        message: Message;
-        usage: OpenAIUsage;
-    } {
-        if (response.status !== 200) {
-            throw new InternalError("OpenAI API returned an error")
-        }
-
-        const data = response.data;
-        if (!data.choices || data.choices.length === 0) {
-            throw new MalformedResponseError("OpenAI API response is empty");
-        }
-
-        const message = data.choices[0].message;
-        if (!message) {
-            throw new MalformedResponseError("OpenAI API response message is empty");
-        }
-
-        const parsedMessage = this.toMessage(data.choices[0].message);
-
-        return { message: parsedMessage, usage: data.usage };
-    }
-
-    private toMessage(message: OpenAIMessage): Message {
-        if (message.role !== "user" && message.role !== "assistant") {
-            throw new InternalError("Invalid message role");
-        }
-
-        return {
-            role: message.role,
-            content: message.content,
-        };
-    }
-
-    private toOpenAIMessage(message: Message): OpenAIMessage {
-        if (message.role === "tool") {
-            return {
-                role: "system",
-                name: "tool",
-                content: message.content,
-            };
-        }
-
-        return {
-            role: message.role,
-            content: message.content,
-        };
     }
 }

@@ -17,7 +17,7 @@ export class ToolExecutor {
     async execute(messageContent: string): Promise<ToolExecutorOutput | null> {
         const toolName = this.extractToolName(messageContent);
         if (!toolName) return null; // No tool found
-        
+
         const tool = this.tools.get(toolName);
         if (!tool) return { toolOutput: `Error: Tool '${toolName}' not found` };
 

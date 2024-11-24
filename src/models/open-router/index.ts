@@ -13,7 +13,6 @@ import {
     OpenRouterRequest,
     OpenRouterMessage,
     OpenRouterResponse,
-    ResponseUsage,
 } from "./types";
 
 export class OpenRouterModel implements IModel {
@@ -24,7 +23,11 @@ export class OpenRouterModel implements IModel {
     private logger?: ILogger;
 
     constructor(settings: OpenRouterModelSettings, logger?: ILogger) {
-        this.apiKey = this.validateApiKey(settings.apiKey);
+        if (!settings.apiKey) {
+            throw new InvalidCredentialsError("OpenRouter API key is required");
+        }
+
+        this.apiKey = settings.apiKey;
         this.baseUrl = settings.baseUrl || "https://openrouter.ai/api/v1/chat/completions";
         this.model = settings.model || "anthropic/claude-3.5-haiku";
         this.logger = logger;
@@ -38,35 +41,10 @@ export class OpenRouterModel implements IModel {
         };
     }
 
-    private validateApiKey(apiKey: string): string {
-        if (!apiKey) {
-            throw new InvalidCredentialsError("OpenRouter API key is required");
-        }
-        return apiKey;
-    }
-
     async generate(prompt: Message[], params?: ExecutionParams): Promise<ModelOutput> {
-        const response = await this.makeRequest(prompt);
-        const { message, usage } = this.handleResponse(response);
-
-        this.logger?.log([...prompt, message], params);
-
-        return {
-            generated: message,
-            params: params,
-            modelMetadata: {
-                model: this.model,
-                inputTokens: usage?.prompt_tokens,
-                outputTokens: usage?.completion_tokens,
-                totalTokens: usage?.total_tokens,
-            },
-        };
-    }
-
-    private async makeRequest(prompt: Message[]): Promise<AxiosResponse<OpenRouterResponse>> {
         const requestBody: OpenRouterRequest = {
             model: this.model,
-            messages: prompt.map(this.toOpenRouterMessage),
+            messages: prompt.map(this.mapMessageExternal),
             temperature: this.params.temperature,
             max_tokens: this.params.max_tokens,
             top_p: this.params.top_p,
@@ -74,19 +52,68 @@ export class OpenRouterModel implements IModel {
             presence_penalty: this.params.presence_penalty,
         };
 
+        let response: AxiosResponse<OpenRouterResponse>;
         try {
-            return await axios.post<OpenRouterResponse>(this.baseUrl, requestBody, {
-                headers: this.getHeaders(),
+            response = await axios.post<OpenRouterResponse>(this.baseUrl, requestBody, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.apiKey}`,
+                },
             });
         } catch (error) {
             this.handleRequestError(error);
         }
+
+        if (response.data.error?.code === 429) {
+            throw new RateLimitError("Rate limit exceeded");
+        }
+
+        if (response.status !== 200) {
+            throw new InternalError("OpenRouter API returned an error");
+        }
+
+        const data = response.data;
+        if (!data.choices || data.choices.length === 0) {
+            throw new MalformedResponseError("OpenRouter API response is empty");
+        }
+
+        const choice = data.choices[0];
+        if (!choice.message || !choice.message.content) {
+            throw new MalformedResponseError("OpenRouter API response message is empty");
+        }
+
+        const responseMessage = {
+            role: "assistant" as const,
+            content: choice.message.content,
+        };
+
+        this.logger?.log([...prompt, responseMessage], params);
+
+        return {
+            generated: responseMessage,
+            params: params,
+            modelMetadata: {
+                model: this.model,
+                inputTokens: data.usage?.prompt_tokens,
+                outputTokens: data.usage?.completion_tokens,
+                totalTokens: data.usage?.total_tokens,
+            },
+        };
     }
 
-    private getHeaders() {
+    private mapMessageExternal(message: Message): OpenRouterMessage {
+        // OpenRouter has its own tool format, since we implement our own we'll just ignore it
+        if (message.role === "tool") {
+            return {
+                role: "user",
+                name: "tool response",
+                content: message.content,
+            };
+        }
+
         return {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
+            role: message.role,
+            content: message.content,
         };
     }
 
@@ -110,55 +137,5 @@ export class OpenRouterModel implements IModel {
         }
 
         throw new InternalError("An unexpected error occurred", error);
-    }
-
-    private handleResponse(response: AxiosResponse<OpenRouterResponse>): {
-        message: Message;
-        usage?: ResponseUsage;
-    } {
-        if (response.data.error?.code === 429) {
-            throw new RateLimitError("Rate limit exceeded");
-        }
-        
-        if (response.status !== 200) {
-            throw new InternalError("OpenRouter API returned an error");
-        }
-
-        const data = response.data;
-        if (!data.choices || data.choices.length === 0) {
-            throw new MalformedResponseError("OpenRouter API response is empty");
-        }
-
-        const choice = data.choices[0];
-        if (!choice.message || !choice.message.content) {
-            throw new MalformedResponseError("OpenRouter API response message is empty");
-        }
-
-        const message = this.toMessage(choice.message as OpenRouterMessage);
-        const usage = data?.usage;
-
-        return { message, usage };
-    }
-
-    private toMessage(message: OpenRouterMessage): Message {
-        return {
-            role: message.role as "user" | "assistant" | "system" | "tool",
-            content: message.content || "",
-        };
-    }
-
-    private toOpenRouterMessage(message: Message): OpenRouterMessage {
-        if (message.role === "tool") {
-            return {
-                role: "user",
-                name: "tool response",
-                content: message.content,
-            };
-        }
-
-        return {
-            role: message.role,
-            content: message.content,
-        };
     }
 }
