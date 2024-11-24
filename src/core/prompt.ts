@@ -18,10 +18,10 @@ export class Prompt {
     /**
      * Formats the prompt by replacing template variables with provided values.
      * Template variables should be in the format {{variableName}}.
-     * 
+     *
      * @param args - Object containing key-value pairs for template variable substitution
      * @returns Array of Message objects with template variables replaced by their values
-     * 
+     *
      * @example
      * const prompt = new Prompt([
      *   { role: "system", content: "Hello {{name}}" }

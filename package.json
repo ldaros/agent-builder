@@ -1,19 +1,36 @@
 {
     "name": "agent-builder",
-    "version": "0.0.7",
-    "description": "Framework for building LLM-powered agents",
+    "version": "0.0.8-rc.1",
+    "description": "A TypeScript framework for building LLM-powered AI agents",
     "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "files": [
         "lib",
-        "index.js"
+        "index.js",
+        "README.md",
+        "LICENSE"
     ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
     "scripts": {
         "test": "mocha -r tsx test/**/*.test.ts --timeout 10000",
         "clean": "rimraf lib",
-        "build": "tsc"
+        "build": "npm run clean && tsc"
     },
-    "keywords": [],
-    "author": "Luan Daros",
+    "keywords": [
+        "ai",
+        "llm",
+        "agents",
+        "typescript",
+        "framework",
+        "chatbot"
+    ],
+    "author": {
+        "name": "Luan Daros",
+        "email": "darosluan@gmail.com",
+        "url": "https://github.com/ldaros"
+    },
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -27,6 +44,7 @@
         "dotenv": "^16.4.5",
         "mocha": "^9.2.2",
         "rimraf": "^6.0.1",
+        "sinon": "^19.0.2",
         "tsx": "^4.19.1",
         "typescript": "^5.6.3"
     },
@@ -34,5 +52,12 @@
         "ajv": "^8.17.1",
         "axios": "^1.7.7",
         "i18next": "^23.16.2"
+    },
+    "prettier": {
+        "semi": true,
+        "trailingComma": "es5",
+        "singleQuote": false,
+        "printWidth": 100,
+        "tabWidth": 4
     }
 }

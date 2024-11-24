@@ -6,7 +6,8 @@ import { cleanJSON } from "../utils/clean-json";
 import { formatAJVErrors } from "../utils/ajv";
 
 export class JSONSchemaParser<T> implements IParser<T> {
-    name = "json-schema";
+    readonly name = "json-schema";
+    readonly version = "1";
     private schema: any;
     private validator: ValidateFunction;
 

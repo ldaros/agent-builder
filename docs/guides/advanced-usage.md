@@ -10,6 +10,9 @@ The `agent-builder` library allows for seamless integration with any LLMs. To us
 import { IModel, ModelOutput, Message, ExecutionParams } from "agent-builder/lib/core/interfaces";
 
 export class MyCustomModel implements IModel {
+    name = "my-custom-model";
+    version = "1";
+
     async generate(prompt: Message[], params?: ExecutionParams): Promise<ModelOutput> {
         // Your custom logic to interact with your LLM goes here.
         // Example using a hypothetical 'custom-llm' library:

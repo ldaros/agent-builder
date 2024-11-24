@@ -49,7 +49,7 @@ export type FunctionDescription = {
 
 export type OpenRouterResponse = {
     id: string;
-    choices: NonStreamingChoice[];
+    choices: OpenRouterChoice[];
     created: number;
     model: string;
     object: "chat.completion" | "chat.completion.chunk";
@@ -64,7 +64,7 @@ export type ResponseUsage = {
     total_tokens: number;
 };
 
-export type NonStreamingChoice = {
+export type OpenRouterChoice = {
     finish_reason: string | null;
     message: {
         content: string | null;

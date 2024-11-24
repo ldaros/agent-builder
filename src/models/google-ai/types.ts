@@ -45,3 +45,10 @@ export type UsageMetadata = {
     candidatesTokenCount: number;
     totalTokenCount: number;
 };
+
+export type RoleMapping = {
+    user: string;
+    tool: string;
+    system: string;
+    assistant: string;
+};
