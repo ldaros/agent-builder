@@ -16,6 +16,7 @@ import {
 import { InitI18n } from "./i18n";
 import { Agent } from "./core/agent";
 import { ToolExecutor } from "./core/tool-executor";
+import { Prompt } from "./core/prompt";
 
 InitI18n();
 
@@ -35,4 +36,5 @@ export {
     ModelMetadata,
     ToolExecutionResult,
     ToolExecutorOutput,
+    Prompt,
 };

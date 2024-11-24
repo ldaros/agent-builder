@@ -1,5 +1,6 @@
 import { Message, IModel, IParser, ExecutionParams, AgentOutput } from "../core/interfaces";
 import { PlainTextParser } from "../parsers/plain-text-parser";
+import { Prompt } from "./prompt";
 import { ToolExecutor } from "./tool-executor";
 
 export class Agent<T = any> {
@@ -20,7 +21,11 @@ export class Agent<T = any> {
         }
     }
 
-    async execute(prompt: Message[], params?: ExecutionParams): Promise<AgentOutput<T>> {
+    async execute(prompt: Prompt | Message[], params?: ExecutionParams): Promise<AgentOutput<T>> {
+        if (prompt instanceof Prompt) {
+            prompt = prompt.format();
+        }
+
         // Agent will add its own system instructions if needed
         this.addSystemInstructions(prompt);
 
