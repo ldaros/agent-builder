@@ -1,15 +1,15 @@
 {
     "name": "agent-builder",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Framework for building LLM-powered agents",
-    "main": "dist/index.js",
+    "main": "lib/index.js",
     "files": [
-        "dist",
+        "lib",
         "index.js"
     ],
     "scripts": {
         "test": "mocha -r tsx test/**/*.test.ts --timeout 10000",
-        "clean": "rimraf dist",
+        "clean": "rimraf lib",
         "build": "tsc"
     },
     "keywords": [],
